@@ -10,12 +10,18 @@ from PIL import Image
 import spacy
 from dotenv import load_dotenv
 import google.generativeai as genai
+import streamlit as st
 
 # ─── Load Secrets & Initialize LLM ─────────────────────────────────────────────
 load_dotenv()  # reads .env in project root
-API_KEY = os.getenv("GOOGLE_API_KEY")
+API_KEY = st.secrets.get("GOOGLE_API_KEY")
 if not API_KEY:
-    raise RuntimeError("Missing GOOGLE_API_KEY in environment")
+    load_dotenv()  # looks for .env in project root
+    API_KEY = os.getenv("GOOGLE_API_KEY")
+
+if not API_KEY:
+    st.error("🚨 Missing GOOGLE_API_KEY! Put it in `.env` locally, or in Streamlit Cloud secrets.")
+    st.stop()
 
 # configure Gemini via Generative AI Studio
 genai.configure(api_key=API_KEY)
