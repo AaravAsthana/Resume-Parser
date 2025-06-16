@@ -23,47 +23,74 @@ Resume_Parser/
 ├── poetry.lock
 ├── app.py
 ├── src/
+│   ├── __init__.py
 │   ├── extractor.py
 │   └── pipeline.py
 ├── assets/
 │   └── logo.png
+├── requirements.txt
 └── resumes/           # drop your PDF resumes here
 ```
 ## 🚀 Quickstart
 
-### Prerequisites
+### 📦 Installation
 
--   Python 3.12
+1.  **Clone the repo**
     
--   [Poetry](https://python-poetry.org/)
+    ```bash
+    `git clone https://github.com/AaravAsthana/Resume-Parser.git cd Resume-Parser` 
+    ```
+2.  **Create & activate a virtualenv**
     
--   (Optional) Docker
+    ```bash
+    `python3.12 -m venv .venv source .venv/bin/activate # macOS/Linux .venv\Scripts\activate # Windows PowerShell` 
+    ```
+3.  **Install dependencies**
+    
+    ```bash
+    `pip install --upgrade pip
+    pip install -r requirements.txt` 
+    
+    > This will pull in everything—including the spaCy model wheel listed in `requirements.txt`—so you won’t need to manually `python -m spacy download en_core_web_sm`.
+    ```
+4.  **(Optional) Docker**  
+    If you prefer Docker:
+    
+    ```bash
+    docker build -t resume-parser:latest .
+    docker run -p 8501:8501 resume-parser:latest 
+    ```
+    Then open [http://localhost:8501](http://localhost:8501) in your browser.
     
 
+----------
 
-### 1. Clone & Install
+## 🔑 Environment Variables
+
+-   Copy `.env.example` to `.env` and fill in:
+    
+   ``` ini    
+    GOOGLE_API_KEY=your-api-key 
+  ```  
+-   **On Streamlit Cloud**, add the same key under **Settings → Secrets** as TOML:
+    
+ ```toml
+  GOOGLE_API_KEY = "your-api-key"
+ ```
+----------
+## 🚀 Running Locally
+
+With pip:
 
 ```bash
-
-git clone https://github.com/<your‑username>/resume-parser.git cd resume-parser # create & activate virtualenv, install deps poetry install # download spaCy model poetry run python -m spacy download en_core_web_sm 
+streamlit run app.py
 ```
 
-### 2. Configure
-Create a `.env` file in project root:
-
-```ini
-GOOGLE_API_KEY=your_google_ai_studio_api_key
-``` 
-
-Put your PDF resumes into the `resumes/` folder.
-
-### 3. Run Locally
-
+With Poetry:
 ```bash
 poetry run streamlit run app.py
-``` 
-
-Then open [http://localhost:8501](http://localhost:8501) in your browser.
+```
+Then open http://localhost:8501 in your browser. 
 
 ----------
 
@@ -82,7 +109,19 @@ Then open [http://localhost:8501](http://localhost:8501) in your browser.
 	     resume-parser-image:latest 
 ```
 3.  Browse to [http://localhost:8501](http://localhost:8501).
-    
+
+    > _(For future‐proofing)_
+
+```dockerfile
+# Dockerfile snippet
+FROM python:3.12-slim
+WORKDIR /app
+COPY . .
+RUN apt-get update && apt-get install -y tesseract-ocr libgl1-mesa-glx && \
+    pip install --no-cache-dir -r requirements.txt
+EXPOSE 8501
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"] 
+```
 
 ----------
 
@@ -129,7 +168,16 @@ Then open [http://localhost:8501](http://localhost:8501) in your browser.
         
 
 ----------
+## 📝 What’s Inside
 
+- `extractor.py` / `pipeline.py`: Resume parsing logic, company skill & JD keyword matching, ATS‑score calculation.
+
+- `app.py`: Streamlit UI with file uploader, ATS donut animation, resume viewer, and downloadable Excel.
+
+- `requirements.txt`: All PyPI dependencies including spaCy’s `en_core_web_sm` wheel.
+
+- `pyproject.toml`: Poetry manifest, if you prefer that route.
+----------
 ## 📝 Future / Docker Tips
 
 -   **Adding README.md** ensures Poetry can package the project (otherwise use `--no-root`).
@@ -150,7 +198,10 @@ Then open [http://localhost:8501](http://localhost:8501) in your browser.
         
 
 ----------
+## 🤝 Contributing
+Feel free to open issues or PRs. If you add new features, please update this README accordingly.
 
+----------
 ## 📄 License
 
 MIT © 2025 Aarav Asthana
